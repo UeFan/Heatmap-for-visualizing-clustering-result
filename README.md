@@ -1,5 +1,6 @@
 # Heatmap for visualizing clustering result
-======
+![Image text](https://github.com/UeFan/Heatmap-for-visualizing-clustering-result/blob/master/example.png)
+
 
 
 Introduction
