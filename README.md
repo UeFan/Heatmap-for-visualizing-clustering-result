@@ -18,7 +18,7 @@ It can show an extra data dimension by setting different cell sizes in the heatm
 Parameters
 ---------------
 
-heatmap(x, y, **kwargs)
+heatmap(**kwargs)
 
 to be continue……
 
@@ -26,6 +26,11 @@ Example
 ---------------
 
 Please refer to the example.ipynb
+
+Acknowledgment
+---------------
+
+I’d like to acknowledge the assistance of my supervisors Prof. Mathias Unberath and Dr. Bela Turk.
 
 
 Reference
