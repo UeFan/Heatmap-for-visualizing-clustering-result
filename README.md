@@ -5,13 +5,13 @@
 Introduction
 ---------------
 
-heatmap.py is a wrapped python function used for generating heatmaps that are suitable for visualizing clustering result. 
+new_heatmap.py is a wrapped python function used for generating heatmaps that are suitable for visualizing clustering result. 
 The heatmap generated has the following unique features:
-that can show an extra data dimension by setting  different cell sizes in the heatmap. Additionally, 
+It can show an extra data dimension by setting different cell sizes in the heatmap. Additionally, 
 
-1. The heatmap is able to show two clusters. They are seperated horizontally in the heatmap. They share the same y-axis, which is usually the features used for clusetering.
-2. Except that the cell color of the heatmap can be set individually, the proposed heatmap can alter the individual cell size. This allows us to show an extra variable dimension in the heatmap.
-3. The orders of the row and column are ranked by the hierarchical order given by scipy.cluster.hierarchy. The resulting dendrograms (illustrate the hierarchical order) are also shown in the heatmap.
+1. The heatmap is able to show two clusters. They are seperated horizontally in the heatmap. They share the same y-axis, which is usually the data points used in clusetering.
+2. Except that the cell color of the heatmap can be set individually, the proposed heatmap can alter the individual cell size. This allows us to show an extra dimension of the data in the heatmap.
+3. The orders of the row and column can be ranked by the hierarchical order given by scipy.cluster.hierarchy. The resulting dendrograms (illustrate the hierarchical order) are also shown in the heatmap.
 
 
 Parameters
@@ -24,7 +24,7 @@ to be continue……
 Example
 ---------------
 
-Please refer to the .ipynb
+Please refer to the example.ipynb
 
 
 Reference
