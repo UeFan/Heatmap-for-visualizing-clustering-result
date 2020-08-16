@@ -42,7 +42,7 @@ Parameters
 
 **`size_range`** : Used to scale the size of the shapes in the plot to make them fit the size of the fields in the matrix. Default value is 500. You will likely need to fiddle with this parameter in order to find the right value for your figure size and the size range applied.
 
-**`palette`** : A list of colors to use as the heatmap palette. The values from `color` are mapped onto the palette so that `min(color) -> palette[0]` and `max(color) -> palette[len(palette)-1]`, and the values in between are linearly interpolated. A good way to choose or create a palette is to simply use Seaborn palettes (https://seaborn.pydata.org/tutorial/color_palettes.html).
+**`palette`** : A list of colors to use as the heatmap palette. The values of cell color are mapped onto the palette so that `min(cell color) -> palette[0]` and `max(cell color) -> palette[len(palette)-1]`, and the values in between are linearly interpolated. A good way to choose or create a palette is to simply use Seaborn palettes (https://seaborn.pydata.org/tutorial/color_palettes.html).
 
 **`chart`** : A 2-d np.array containing the values to be filled in the char located on the right side of the index group. 
 
