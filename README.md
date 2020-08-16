@@ -20,8 +20,6 @@ Parameters
 
 ### **`multi_group_heatmap(**kwargs)`**
 
-**Parameters**:
-
 **`y_ticks`** : A 1-d np.array containing the yticks in order.
 
 **`index_group`** : A 2-d np.array containing the values for the color of heatmap located on the left (which is the "heatmap of index group"). The number of rows should be same as the length of `y_ticks`. The number of columns should be same as the length of `index_group_x_ticks`.
