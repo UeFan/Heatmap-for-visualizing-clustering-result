@@ -11,7 +11,7 @@ from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 
 def heatmap(data, row_labels, col_labels, ax_=None,
-            cbar_kw={}, cbarlabel="", show_yticks = True, **kwargs):
+            cbar_kw={}, cbarlabel="", **kwargs):
     """
     Create a heatmap from a numpy array and two lists of labels.
 
@@ -47,10 +47,6 @@ def heatmap(data, row_labels, col_labels, ax_=None,
     # We want to show all ticks...
     ax_.set_xticks(np.arange(data.shape[1]))
     ax_.set_xticklabels(col_labels)
-
-    if(show_yticks == True):
-        ax_.set_yticks(np.arange(data.shape[0]))
-        ax_.set_yticklabels(row_labels)
 
     # Let the horizontal ax_es labeling appear on top.
     ax_.tick_params(top=False, bottom=True,
@@ -167,7 +163,7 @@ def multi_group_heatmap(**kwargs):
 
     # ratio = len(x0) / (len(x0) + len(x1))
     # plot_grid = plt.GridSpec(1, 24, hspace=0.2, wspace=0.1) # Setup a 1x10 grid
-    plot_grid = plt.GridSpec(5,7,wspace=0.0,hspace=0.0,width_ratios=[300,400,20,group0.shape[1]*30,group1.shape[1]*30,20,60], height_ratios=[1,3.5,0.5,3.5, 0.5])
+    plot_grid = plt.GridSpec(5,7,wspace=0.0,hspace=0.0,width_ratios=[4,4,0.5,group0.shape[1],group1.shape[1],0.5,0.8], height_ratios=[1,3.5,0.5,3.5, 0.5])
 
 
 
@@ -191,7 +187,7 @@ def multi_group_heatmap(**kwargs):
         if_color_bar = kwargs['color_bar']
 
     if 'palette' in kwargs:
-        palette = kwargs['palette']
+        palette = sns.color_palette(kwargs['palette'][0], kwargs['palette'][1])
         n_colors = len(palette)
     else:
         n_colors = 256 # Use 256 colors for the diverging color palette
@@ -201,7 +197,10 @@ def multi_group_heatmap(**kwargs):
         color_min, color_max = kwargs['color_range']
     else:
         color_min, color_max = min(np.min(group0),min(group1)), max(np.max(group0), max(group1)) # Range of values that will be mapped to the palette, i.e. min and max possible correlation
-
+    if 'size_range' in kwargs:
+        size_min, size_max = kwargs['size_range'][0], kwargs['size_range'][1]
+    else:
+        size_min, size_max = min(min(size),min(kwargs['size1'])), max(max(size),max(kwargs['size1']))
     marker = kwargs.get('marker', 's')
     size_scale = kwargs.get('size_scale', 500)
     kwargs_pass_on = {k: v for k, v in kwargs.items() if k not in [
@@ -257,7 +256,8 @@ def multi_group_heatmap(**kwargs):
         )
         ax_sb.set_xticks([])  # Remove horizontal ticks
         ax_sb.set_yticks(np.linspace(0, 10, 11))  # Show vertical ticks for min, middle and max
-        ax_sb.set_yticklabels(['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'])
+        # ax_sb.set_yticklabels(['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'])
+        ax_sb.set_yticklabels([int(size_min), ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', int(size_max)])
 
         ax_sb.yaxis.tick_right()  # Show vertical ticks on the right
 
@@ -295,11 +295,6 @@ def multi_group_heatmap(**kwargs):
     size = np.ones(index_group.shape[:])
     x, y, content, size = matrix2scatter(x_mean_ticks, y_ticks, index_group, size)
 
-    if 'size_range' in kwargs:
-        size_min, size_max = kwargs['size_range'][0], kwargs['size_range'][1]
-    else:
-        size_min, size_max = min(min(size),min(kwargs['size1'])), max(max(size),max(kwargs['size1']))
-
 
     def value_to_size(val):
         if size_min == size_max:
@@ -312,7 +307,7 @@ def multi_group_heatmap(**kwargs):
     x_names = [t for t in sorted(set([v for v in x]))]
     x_to_num = {p[1]:p[0] for p in enumerate(x_names)}
 
-    y_names = [t for t in sorted(set([v for v in y]))]
+    y_names = [t for t in y_ticks]
     y_to_num = {p[1]:p[0] for p in enumerate(y_names)}
 
     ax_cb = plt.subplot(plot_grid[1:,0]) # Use the left 14/15ths of the grid for the main plot
@@ -333,12 +328,14 @@ def multi_group_heatmap(**kwargs):
         tt += 1
     ax_cb.set_yticks(set_yticks_, minor=True)
 
+    ax_cb.set_yticks(np.arange(y_ticks.shape[0]), minor=False)
+    ax_cb.set_yticklabels(y_ticks, minor=False)
     ax_cb.grid(False, 'major')
     ax_cb.yaxis.grid(True, 'minor')
 
-    cmap = cm.get_cmap('RdYlGn', 1000)
+    cmap = cm.get_cmap(kwargs['palette'][0], kwargs['palette'][1])
     im = heatmap(index_group, y, x, ax_=ax_cb,
-                       cbarlabel="", cmap=cmap, aspect='auto', vmin=-1, vmax=1, show_yticks = True)
+                       cbarlabel="", cmap=cmap, aspect='auto', vmin=color_min, vmax=color_max)
     texts = annotate_heatmap(im, threshold=0.2)
 
 
@@ -364,14 +361,14 @@ def multi_group_heatmap(**kwargs):
         cmap_w = ListedColormap(['white'])
         chart_x_ticks = kwargs['chart_x_ticks']
         im = heatmap(np.zeros(chart.shape), y_names, chart_x_ticks, ax_=ax1,
-                     cbarlabel="", cmap=cmap_w, aspect='auto', vmin=-1, vmax=1, show_yticks = False)
-        texts = annotate_heatmap(im)
+                     cbarlabel="", cmap=cmap_w, aspect='auto')
+        texts = annotate_heatmap(im, data=chart,)
     
         ax1.set_yticks(set_yticks_, minor=True)
         ax1.get_yaxis().set_ticks([])
         ax1.grid(False, 'major')
         ax1.yaxis.grid(True, 'minor')
-    
+
         ax1.set_xlim([-0.5, max([v for v in x_to_num.values()]) + 0.5])
         ax1.set_ylim([-0.5, max([v for v in y_to_num.values()]) + 0.5])
         ax1.set_facecolor('white')
@@ -485,66 +482,6 @@ def multi_group_heatmap(**kwargs):
         x_axis_label = kwargs['x_axis_label']
     ax2.set_xlabel(x_axis_label  +'\n Group 1     ')
 
-    if (if_color_bar == True):
-        if color_min < color_max:
-            ax_cb = plt.subplot(plot_grid[1, 6])  # Use the rightmost column of the plot
-
-            col_x = [0] * len(palette)  # Fixed x coordinate for the bars
-            bar_y = np.linspace(color_min, color_max, n_colors)  # y coordinates for each of the n_colors bars
-
-            bar_height = bar_y[1] - bar_y[0]
-            ax_cb.barh(
-                y=bar_y,
-                width=[3] * len(palette),  # Make bars 5 units wide
-                left=col_x,  # Make bars start at 0
-                height=bar_height,
-                color=palette,
-                linewidth=0
-            )
-            ax_cb.grid(False)  # Hide grid
-            ax_cb.set_facecolor('white')  # Make background white
-            ax_cb.set_xticks([])  # Remove horizontal ticks
-            ax_cb.set_yticks(np.linspace(min(bar_y), max(bar_y), 3))  # Show vertical ticks for min, middle and max
-            ax_cb.yaxis.tick_right()  # Show vertical ticks on the right
-
-            ax_cb.spines['top'].set_visible(False)
-            ax_cb.spines['right'].set_visible(False)
-            ax_cb.spines['bottom'].set_visible(False)
-            ax_cb.spines['left'].set_visible(False)
-
-    if(if_size_bar == True):
-        ax_sb = plt.subplot(plot_grid[3, 6])  # Use the rightmost column of the plot
-        ax_sb.scatter(
-            x=[0 for ii in range(11)],
-            y=[jj for jj in range(11)],
-            marker=marker,
-            # s=[(0 + 0.3*kk)*size_scale/3 for kk in range(11)],
-            s=[(ss*0.85/10 + 0.15)*size_scale for ss in range(11)],
-            **kwargs_pass_on
-        )
-        ax_sb.set_xticks([])  # Remove horizontal ticks
-        ax_sb.set_yticks(np.linspace(0, 10, 11))  # Show vertical ticks for min, middle and max
-        ax_sb.set_yticklabels(['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'])
-
-        ax_sb.yaxis.tick_right()  # Show vertical ticks on the right
-
-        ax_sb.spines['top'].set_visible(False)
-        ax_sb.spines['right'].set_visible(False)
-        ax_sb.spines['bottom'].set_visible(False)
-        ax_sb.spines['left'].set_visible(False)
-
-    if(col_pairwise_dists_0 != [] and col_pairwise_dists_1 != []):
-        # cluster
-        col_clusters_0 = sch.linkage(col_pairwise_dists_0, method='complete')
-        col_clusters_1 = sch.linkage(col_pairwise_dists_1, method='complete')
-
-        ax_dg0 = plt.subplot(plot_grid[0,3])
-        col_denD_0 = sch.dendrogram(col_clusters_0, color_threshold=np.inf, no_plot = False, ax = ax_dg0)
-        clean_axis(ax_dg0)
-
-        ax_dg1 = plt.subplot(plot_grid[0, 4])
-        col_denD_1 = sch.dendrogram(col_clusters_1, color_threshold=np.inf, no_plot=False, ax=ax_dg1)
-        clean_axis(ax_dg1)
 
 
 def corrplot(data, size_scale=500, marker='s'):
