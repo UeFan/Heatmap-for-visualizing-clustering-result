@@ -362,7 +362,7 @@ def multi_group_heatmap(**kwargs):
         chart_x_ticks = kwargs['chart_x_ticks']
         im = heatmap(np.zeros(chart.shape), y_names, chart_x_ticks, ax_=ax1,
                      cbarlabel="", cmap=cmap_w, aspect='auto')
-        texts = annotate_heatmap(im, data=chart,)
+        texts = annotate_heatmap(im, data=chart)
     
         ax1.set_yticks(set_yticks_, minor=True)
         ax1.get_yaxis().set_ticks([])
