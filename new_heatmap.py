@@ -127,7 +127,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.1f}",
         for j in range(data.shape[1]):
             if threshold is None:
                 kw.update(color=textcolors[0])
-                text = im.axes.text(j, i, data[i, j], **kw)
+                text = im.axes.text(j, i, valfmt(data[i, j], None), **kw)
             else:
                 kw.update(color=textcolors[int(im.norm(abs(data[i, j])) > threshold)])
                 text = im.axes.text(j, i, valfmt(data[i, j], None), **kw)
@@ -163,7 +163,7 @@ def multi_group_heatmap(**kwargs):
 
     # ratio = len(x0) / (len(x0) + len(x1))
     # plot_grid = plt.GridSpec(1, 24, hspace=0.2, wspace=0.1) # Setup a 1x10 grid
-    plot_grid = plt.GridSpec(5,7,wspace=0.0,hspace=0.0,width_ratios=[4,4,0.5,group0.shape[1],group1.shape[1],0.5,0.8], height_ratios=[1,3.5,0.5,3.5, 0.5])
+    plot_grid = plt.GridSpec(5,7,wspace=0.0,hspace=0.0,width_ratios=[3,3,0.5,group0.shape[1],group1.shape[1],0.5,0.8], height_ratios=[1,3.5,0.5,3.5, 0.2])
 
 
 
@@ -205,8 +205,8 @@ def multi_group_heatmap(**kwargs):
     size_scale = kwargs.get('size_scale', 500)
     kwargs_pass_on = {k: v for k, v in kwargs.items() if k not in [
         'group0', 'group1', 'palette', 'color_range', 'size0', 'size1', 'size_range', 'size_scale', 'marker', 'col_pairwise_dists_0', 'col_pairwise_dists_1',
-        'group0_x_ticks', 'group1_x_ticks', 'y_order', 'xlabel', 'y_ticks','x_axis_label', 'chart_x_ticks', 'index_group_x_ticks', 'high_ligh_y_ticks',
-        'ylabel', 'clean_axis', 'color_bar', 'size_bar', 'col_clusters0', 'col_clusters1', 'x_mean', 'y_mean', 'index_group', 'x_order_mean','chart'
+        'group0_x_ticks', 'group1_x_ticks', 'y_order', 'xlabel', 'y_ticks', 'x_axis_label0', 'x_axis_label1', 'chart_x_ticks', 'index_group_x_ticks', 'high_ligh_y_ticks',
+        'ylabel', 'clean_axis', 'color_bar', 'size_bar', 'col_clusters0', 'col_clusters1', 'x_mean', 'y_mean', 'index_group', 'x_order_mean','chart','space_in_size_bar'
     ]}
     def value_to_color(val):
         if color_min == color_max:
@@ -236,7 +236,7 @@ def multi_group_heatmap(**kwargs):
             ax_cb.grid(False)  # Hide grid
             ax_cb.set_facecolor('white')  # Make background white
             ax_cb.set_xticks([])  # Remove horizontal ticks
-            ax_cb.set_yticks(np.linspace(min(bar_y), max(bar_y), 3))  # Show vertical ticks for min, middle and max
+            ax_cb.set_yticks(np.around(np.linspace(min(bar_y), (max(bar_y)), 3), 2))  # Show vertical ticks for min, middle and max
             ax_cb.yaxis.tick_right()  # Show vertical ticks on the right
 
             ax_cb.spines['top'].set_visible(False)
@@ -246,18 +246,22 @@ def multi_group_heatmap(**kwargs):
 
     if(if_size_bar == True):
         ax_sb = plt.subplot(plot_grid[3, 6])  # Use the rightmost column of the plot
+
+        if 'space_in_size_bar' in kwargs:
+            space_in_sb = kwargs['space_in_size_bar']
+
         ax_sb.scatter(
-            x=[0 for ii in range(11)],
-            y=[jj for jj in range(11)],
+            x=[0 for ii in range(0,11,space_in_sb)],
+            y=[jj for jj in range(0,11,space_in_sb)],
             marker=marker,
             # s=[(0 + 0.3*kk)*size_scale/3 for kk in range(11)],
-            s=[(ss*0.85/10 + 0.15)*size_scale for ss in range(11)],
+            s=[(ss*0.85/10 + 0.15)*size_scale for ss in range(0,11,space_in_sb)],
             **kwargs_pass_on
         )
         ax_sb.set_xticks([])  # Remove horizontal ticks
-        ax_sb.set_yticks(np.linspace(0, 10, 11))  # Show vertical ticks for min, middle and max
+        ax_sb.set_yticks(np.linspace(0, 10, 2))  # Show vertical ticks for min, middle and max
         # ax_sb.set_yticklabels(['0.0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'])
-        ax_sb.set_yticklabels([int(size_min), ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', int(size_max)])
+        ax_sb.set_yticklabels([str(size_min), str(round(size_max, 2))])
 
         ax_sb.yaxis.tick_right()  # Show vertical ticks on the right
 
@@ -300,7 +304,7 @@ def multi_group_heatmap(**kwargs):
         if size_min == size_max:
             return 1 * size_scale
         else:
-            val_position = (val - size_min) * 0.95 / (size_max - size_min) + 0.05 # position of value in the input range, relative to the length of the input range
+            val_position = (val - size_min) * 0.85 / (size_max - size_min) + 0.15 # position of value in the input range, relative to the length of the input range
             val_position = min(max(val_position, 0), 1) # bound the position betwen 0 and 1
             return val_position * size_scale
 
@@ -422,7 +426,10 @@ def multi_group_heatmap(**kwargs):
     ax2.set_xlabel(kwargs.get('xlabel', ''))
 
     ax2.get_yaxis().set_ticks([])
-    ax2.set_xlabel('\n  Group 0     ')
+    x_axis_label0 = ''
+    if 'x_axis_label0' in kwargs:
+        x_axis_label0 = kwargs['x_axis_label0']
+    ax2.set_xlabel(x_axis_label0)
 ##########################################################################
 
 
@@ -477,10 +484,10 @@ def multi_group_heatmap(**kwargs):
     ax2.set_xlabel(kwargs.get('xlabel', ''))
 
     ax2.get_yaxis().set_ticks([])
-    x_axis_label = ''
-    if 'x_axis_label' in kwargs:
-        x_axis_label = kwargs['x_axis_label']
-    ax2.set_xlabel(x_axis_label  +'\n Group 1     ')
+    x_axis_label1 = ''
+    if 'x_axis_label1' in kwargs:
+        x_axis_label1 = kwargs['x_axis_label1']
+    ax2.set_xlabel(x_axis_label1)
 
 
 
