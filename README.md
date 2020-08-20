@@ -42,13 +42,15 @@ Parameters
 
 **`size_range`** : Used to scale the size of the shapes in the plot to make them fit the size of the fields in the matrix. Default value is 500. You will likely need to fiddle with this parameter in order to find the right value for your figure size and the size range applied.
 
-**`palette`** : A list of colors to use as the heatmap palette. The values of cell color are mapped onto the palette so that `min(cell color) -> palette[0]` and `max(cell color) -> palette[len(palette)-1]`, and the values in between are linearly interpolated. A good way to choose or create a palette is to simply use Seaborn palettes (https://seaborn.pydata.org/tutorial/color_palettes.html).
+**`palette`** : A tuple `(the name of any seaborn palette or matplotlib colormap, length of color list)` indicating a list of colors to use as the heatmap palette. The values of cell color are mapped onto the palette so that `min(cell color) -> palette[0]` and `max(cell color) -> palette[len(palette)-1]`, and the values in between are linearly interpolated. eg. ("BrBG", 256). (Please refer to https://seaborn.pydata.org/tutorial/color_palettes.html).
 
 **`chart`** : A 2-d np.array containing the values to be filled in the char located on the right side of the index group. 
 
 **`chart_x_ticks`** : A 1-d np.array containing the ordered xticks of the chart.
 
-**`x_axis_label`** : Label for the x-axis.
+**`x_axis_label0`** : Label for the x-axis of group0. Optional.
+
+**`x_axis_label1`** : Label for the x-axis of group1. Optional.
 
 **`high_ligh_y_ticks`** : A tuple `(starting row number, ending row number)` that sets the starting and ending row numbers of the yticks that will be colored in red.
 
@@ -60,11 +62,16 @@ Parameters
 
 **`size_bar`** : A bool controls whether show the size bar (legend of cell size) or not.
 
+**`space_in_size_bar`** : An integer controls how many cube cells are shown in the size bar. If set to 1, there will be 11 cube cells. If set to 2, there will be 6. 
+cells.
+
 
 Example
 ---------------
 
 Please refer to the example.ipynb
+
+A new example that visualize the data of mobile app usage is avaliabel in .\visualize_app_usage\. 
 
 Acknowledgment
 ---------------
